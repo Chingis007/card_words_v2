@@ -8,7 +8,6 @@ import Image from "next/image"
 
 // import markdownit from "markdown-it"
 // import { Skeleton } from "../../../components/ui/skeleton"
-import View from "../../../../../components/View"
 import Card, { TypeCard } from "../../../../../components/WordCard"
 import { Button } from "../../../../../components/ui/button"
 import { getDeckById } from "@/lib/queries/getDeckById"
