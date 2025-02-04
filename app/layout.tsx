@@ -1,28 +1,77 @@
-import "./globals.css"
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
-import Footer from "@/components/footer"
-import Header from "@/components/header"
+import localFont from "next/font/local"
+import "easymde/dist/easymde.min.css"
+import "./globals.css"
+import Navbar from "@/components/Navbar"
+import { Toaster } from "@/components/ui/toaster"
 
-const inter = Inter({ subsets: ["latin"] })
+const workSans = localFont({
+  src: [
+    {
+      path: "./fonts/WorkSans-Black.ttf",
+      weight: "900",
+      style: "normal",
+    },
+    {
+      path: "./fonts/WorkSans-ExtraBold.ttf",
+      weight: "800",
+      style: "normal",
+    },
+    {
+      path: "./fonts/WorkSans-Bold.ttf",
+      weight: "700",
+      style: "normal",
+    },
+    {
+      path: "./fonts/WorkSans-SemiBold.ttf",
+      weight: "600",
+      style: "normal",
+    },
+    {
+      path: "./fonts/WorkSans-Medium.ttf",
+      weight: "500",
+      style: "normal",
+    },
+    {
+      path: "./fonts/WorkSans-Regular.ttf",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "./fonts/WorkSans-Black.ttf",
+      weight: "300",
+      style: "normal",
+    },
+    {
+      path: "./fonts/WorkSans-Thin.ttf",
+      weight: "200",
+      style: "normal",
+    },
+    {
+      path: "./fonts/WorkSans-ExtraLight.ttf",
+      weight: "100",
+      style: "normal",
+    },
+  ],
+  variable: "--font-work-sans",
+})
 
 export const metadata: Metadata = {
-  title: "NextAuth.js Example",
-  description:
-    "This is an example site to demonstrate how to use NextAuth.js for authentication",
+  title: "YC Directory",
+  description: "Pitch, Vote and Grow",
 }
 
-export default function RootLayout({ children }: React.PropsWithChildren) {
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode
+}>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
-        <div className="flex h-full min-h-screen w-full flex-col justify-between">
-          <Header />
-          <main className="mx-auto w-full max-w-3xl flex-auto px-4 py-4 sm:px-6 md:py-6">
-            {children}
-          </main>
-          <Footer />
-        </div>
+      <body className={workSans.variable}>
+        <Navbar />
+        {children}
+        <Toaster />
       </body>
     </html>
   )
