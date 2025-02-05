@@ -80,7 +80,7 @@ export default async function Home({
         <SearchForm query={query} />
       </section>
 
-      <section className="section_container">
+      {/* <section className="section_container">
         <p className="text-30-semibold">
           {query
             ? `Search results for "${query}"`
@@ -104,7 +104,7 @@ export default async function Home({
             <p className="no-results">No Decks Found</p>
           )}
         </ul>
-      </section>
+      </section> */}
 
       {/* <SanityLive /> */}
     </>

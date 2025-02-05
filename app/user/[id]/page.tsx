@@ -5,6 +5,7 @@ import { notFound } from "next/navigation"
 import Image from "next/image"
 import { Suspense } from "react"
 import { getAuthorById } from "@/lib/queries/getAuthorById"
+import UserDecks from "@/components/UserDecks"
 // import { StartupCardSkeleton } from "../../../components/DeckCard"
 
 export const experimental_ppr = true
@@ -42,12 +43,12 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
 
         <div className="flex-1 flex flex-col gap-5 lg:-mt-5">
           <p className="text-30-bold">
-            {session?.user?.email === user?.email ? "Your" : "All"} Startups
+            {session?.user?.email === user?.email ? "Your" : "All"} Decks
           </p>
           <ul className="card_grid-sm">
-            {/* <Suspense fallback={<StartupCardSkeleton />}>
-              <UserStartups id={id} />
-            </Suspense> */}
+            {/* <Suspense fallback={<DeckCardSkeleton />}> */}
+            <UserDecks id={id} myid={session?.user?.id} />
+            {/* </Suspense> */}
           </ul>
         </div>
       </section>

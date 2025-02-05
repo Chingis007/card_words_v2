@@ -8,6 +8,7 @@ import { createStorage } from "unstorage"
 import memoryDriver from "unstorage/drivers/memory"
 import vercelKVDriver from "unstorage/drivers/vercel-kv"
 import { UnstorageAdapter } from "@auth/unstorage-adapter"
+import { getAuthorByEmail } from "./lib/queries/getAuthorByEmail"
 
 const storage = createStorage({
   driver: process.env.VERCEL
@@ -41,7 +42,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
     async session({ session, token }) {
       if (token?.accessToken) session.accessToken = token.accessToken
-
+      const userId = (await getAuthorByEmail(session.user.email)).id
+      session.user.id = String(userId)
       return session
     },
   },

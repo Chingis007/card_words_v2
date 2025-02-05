@@ -4,6 +4,9 @@ import Image from "next/image"
 import { BadgePlus, LogOut } from "lucide-react"
 import { auth, signIn, signOut } from "auth"
 import { signOutAction, signInGoogleAction } from "@/lib/authFunctions"
+import { checkUserExistAndReturn } from "@/lib/queries/checkUserExistAndReturn"
+import { redirect } from "next/dist/server/api-utils"
+import { notFound } from "next/navigation"
 
 export default async function Navbar() {
   const session = await auth()
@@ -17,8 +20,12 @@ export default async function Navbar() {
         <div className="flex items-center gap-5 text-black">
           {session && session?.user ? (
             <>
-              <Link href="/deck/create">
+              {/* <Link href="/deck/create">
                 <span className="max-sm:hidden">Create</span>
+                <BadgePlus className="size-6 sm:hidden" />
+              </Link> */}
+              <Link href={`/user/${session.user.id}`}>
+                <span className="max-sm:hidden">My Decks</span>
                 <BadgePlus className="size-6 sm:hidden" />
               </Link>
 

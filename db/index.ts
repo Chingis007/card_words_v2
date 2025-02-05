@@ -6,7 +6,7 @@ import { config } from "dotenv"
 //   console.log("loading .env.local")
 // }
 
-config({ path: ".env.local" })
+// config({ path: ".env.local" })
 
 // const sql = neon(process.env.DATABASE_URL!)
 
