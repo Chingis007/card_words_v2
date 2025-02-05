@@ -135,7 +135,7 @@
 }
 
 .pink_container {
-  @apply w-full bg-primary min-h-[530px] flex justify-center items-center flex-col py-10 px-6;
+  @apply w-full bg-primary min-h-[530px] flex justify-center items-center flex-col py-10 px-6 h-[100vh];
   background-image: linear-gradient(
     to right,
     transparent 49.5%,
