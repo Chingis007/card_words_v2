@@ -10,20 +10,20 @@ import vercelKVDriver from "unstorage/drivers/vercel-kv"
 import { UnstorageAdapter } from "@auth/unstorage-adapter"
 import { getAuthorByEmail } from "./lib/queries/getAuthorByEmail"
 
-const storage = createStorage({
-  driver: process.env.VERCEL
-    ? vercelKVDriver({
-        url: process.env.AUTH_KV_REST_API_URL,
-        token: process.env.AUTH_KV_REST_API_TOKEN,
-        env: false,
-      })
-    : memoryDriver(),
-})
+// const storage = createStorage({
+//   driver: process.env.VERCEL
+//     ? vercelKVDriver({
+//         url: process.env.AUTH_KV_REST_API_URL,
+//         token: process.env.AUTH_KV_REST_API_TOKEN,
+//         env: false,
+//       })
+//     : memoryDriver(),
+// })
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   debug: !!process.env.AUTH_DEBUG,
   theme: { logo: "https://authjs.dev/img/logo-sm.png" },
-  adapter: UnstorageAdapter(storage),
+  // adapter: UnstorageAdapter(storage),
   providers: [
     // GitHub,
     Google({
