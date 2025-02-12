@@ -17,7 +17,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-import React, { useState, useActionState } from "react"
+import React, { useState, useActionState, useCallback } from "react"
 import { Input } from "./ui/input"
 import { Textarea } from "./ui/textarea"
 // import MDEditor from "@uiw/react-md-editor"
@@ -30,15 +30,53 @@ import { useRouter } from "next/navigation"
 import { createNewDeck } from "@/lib/queries/createNewDeck"
 // import { unSaveDeck } from "@/lib/actions"
 // import { createPitch } from "@/lib/actions";
+import {
+  Dropzone,
+  DropZoneArea,
+  DropzoneDescription,
+  DropzoneFileList,
+  DropzoneFileListItem,
+  DropzoneMessage,
+  DropzoneRemoveFile,
+  DropzoneTrigger,
+  useDropzone,
+} from "@/components/ui/dropzone"
+import { UploadIcon, Trash2Icon } from "lucide-react"
+import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar"
+import { cn } from "@/lib/utils"
 
 const NewDeckForm = (props: { author_id: number }) => {
   const [value1, setValue1] = useState<string | undefined>(undefined)
   const [value2, setValue2] = useState<string | undefined>(undefined)
-  const [key, setKey] = useState(+new Date())
+  const [key, setKey] = useState(0)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const { toast } = useToast()
   const router = useRouter()
 
+  const dropzone = useDropzone({
+    onDropFile: async (file: File) => {
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+      return {
+        status: "success",
+        result: URL.createObjectURL(file),
+      }
+    },
+    validation: {
+      accept: {
+        "image/*": [".png", ".jpg", ".jpeg"],
+      },
+      maxSize: 10 * 1024 * 1024,
+      maxFiles: 1,
+    },
+
+    shiftOnMaxFiles: true,
+  })
+  const theFile = dropzone.fileStatuses[0]?.file
+  // console.log(theFile)
+  const avatarSrc = dropzone.fileStatuses[0]?.result
+  // console.log(avatarSrc)
+  const isPending2 = dropzone.fileStatuses[0]?.status === "pending"
+  // console.log(isPending2)
   const formSchema = z.object({
     title: z.string().min(2, {
       message: "Username must be at least 2 characters.",
@@ -74,11 +112,11 @@ const NewDeckForm = (props: { author_id: number }) => {
       //   link: formData.get("link") as string,
       // }
       // await formSchema.parseAsync(formValues)
-
       let result = await createNewDeck(
         prevState,
         formData,
-        props.author_id
+        props.author_id,
+        theFile
         // values.image,
         // values.title,
         // values.description,
@@ -93,10 +131,10 @@ const NewDeckForm = (props: { author_id: number }) => {
           title: "Success",
           description: "Your word card has been created successfully",
         })
-        setKey(+new Date())
+        setKey(key + 1)
         setValue1(undefined)
         setValue2(undefined)
-        console.log("result.returnedDecksId", result.returnedDecksId)
+        // console.log("result.returnedDecksId", result.returnedDecksId)
         router.push(`/deck/${result.returnedDecksId}`)
       }
       return result
@@ -150,6 +188,7 @@ const NewDeckForm = (props: { author_id: number }) => {
   //     props.author_id
   //   )
   // }
+
   return (
     // <Form {...form}>
     <form
@@ -175,16 +214,41 @@ const NewDeckForm = (props: { author_id: number }) => {
         <label htmlFor="image" className="startup-form_label">
           Deck Main Image
         </label>
-        <Input
-          id="image"
-          name="image"
-          className="startup-form_input"
-          required
-          placeholder="URL"
-        />
-
+        {/* <div className="flex flex-col justify-center items-center text-xl border-1 p-2 rounded-xl border-black"> */}
+        {/* <Input
+            id="image"
+            name="image"
+            className="mb-4 border-[3px] border-gray-500  rounded-full px-5 py-7 text-[18px] text-black font-semibold"
+            required
+            placeholder="URL"
+          />
+          OR */}
+        <Dropzone {...dropzone}>
+          <div className="flex flex-row justify-between">
+            <DropzoneMessage />
+          </div>
+          <DropZoneArea className="flex w-full border-[3px] border-black rounded-full">
+            <DropzoneTrigger className="flex w-full gap-8 bg-transparent text-sm justify-center items-center hover:bg-gray-200">
+              <Avatar className={cn(isPending2 && "animate-pulse")}>
+                <AvatarImage
+                  className="object-cover max-w-[100px] max-h-[100px]"
+                  src={avatarSrc}
+                />
+                <AvatarFallback>IMG</AvatarFallback>
+              </Avatar>
+              <div className="flex flex-col gap-1 font-semibold">
+                <p>Upload a new image</p>
+                <p className="text-xs text-muted-foreground">
+                  Please select an image smaller than 10MB
+                </p>
+              </div>
+            </DropzoneTrigger>
+          </DropZoneArea>
+        </Dropzone>
         {errors.title && <p className="startup-form_error">{errors.title}</p>}
+        {/* </div> */}
       </div>
+
       <div>
         <label htmlFor="description" className="startup-form_label">
           Description
@@ -207,13 +271,14 @@ const NewDeckForm = (props: { author_id: number }) => {
           key={key}
           name="primelanguage"
           value={value1}
+          required
           // onValueChange={field.onChange}
           // defaultValue={field.value}
         >
           <SelectTrigger className="w-[180px]" id="primelanguage">
             <SelectValue placeholder="Choose language" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="z-10 bg-white">
             <SelectItem value="ua">UA</SelectItem>
             <SelectItem value="usa">USA</SelectItem>
           </SelectContent>
@@ -229,13 +294,14 @@ const NewDeckForm = (props: { author_id: number }) => {
           value={value2}
           key={key}
           name="translate"
+          required
           // onValueChange={field.onChange}
           // defaultValue={field.value}
         >
           <SelectTrigger className="w-[180px]" id="translate">
             <SelectValue placeholder="Choose language" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="z-10 bg-white">
             <SelectItem value="ua">UA</SelectItem>
             <SelectItem value="usa">USA</SelectItem>
           </SelectContent>

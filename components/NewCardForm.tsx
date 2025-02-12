@@ -31,7 +31,19 @@ import { createNewDeck } from "@/lib/queries/createNewDeck"
 import { createNewCard } from "@/lib/queries/createNewCard"
 // import { unSaveDeck } from "@/lib/actions"
 // import { createPitch } from "@/lib/actions";
-
+import {
+  Dropzone,
+  DropZoneArea,
+  DropzoneDescription,
+  DropzoneFileList,
+  DropzoneFileListItem,
+  DropzoneMessage,
+  DropzoneRemoveFile,
+  DropzoneTrigger,
+  useDropzone,
+} from "@/components/ui/dropzone"
+import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar"
+import { cn } from "@/lib/utils"
 const NewCardForm = (props: { deckId: number }) => {
   // const [value1, setValue1] = useState<string | undefined>(undefined)
   // const [value2, setValue2] = useState<string | undefined>(undefined)
@@ -39,7 +51,29 @@ const NewCardForm = (props: { deckId: number }) => {
   const [errors, setErrors] = useState<Record<string, string>>({})
   const { toast } = useToast()
   const router = useRouter()
-
+  const dropzone = useDropzone({
+    onDropFile: async (file: File) => {
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+      return {
+        status: "success",
+        result: URL.createObjectURL(file),
+      }
+    },
+    validation: {
+      accept: {
+        "image/*": [".png", ".jpg", ".jpeg"],
+      },
+      maxSize: 10 * 1024 * 1024,
+      maxFiles: 1,
+    },
+    shiftOnMaxFiles: true,
+  })
+  const theFile = dropzone.fileStatuses[0]?.file
+  // console.log(theFile)
+  const avatarSrc = dropzone.fileStatuses[0]?.result
+  // console.log(avatarSrc)
+  const isPending2 = dropzone.fileStatuses[0]?.status === "pending"
+  // console.log(isPending2)
   const formSchema = z.object({
     title: z.string().min(2, {
       message: "Username must be at least 2 characters.",
@@ -79,7 +113,8 @@ const NewCardForm = (props: { deckId: number }) => {
       let result = await createNewCard(
         prevState,
         formData,
-        props.deckId
+        props.deckId,
+        theFile
         // values.image,
         // values.title,
         // values.description,
@@ -97,7 +132,7 @@ const NewCardForm = (props: { deckId: number }) => {
         // setKey(+new Date())
         // setValue1(undefined)
         // setValue2(undefined)
-        router.push(`/deck/${props.deckId}/card/${result.returnedCardsId}`)
+        router.push(`/deck/${props.deckId}`)
       }
       return result
     } catch (error) {
@@ -161,14 +196,35 @@ const NewCardForm = (props: { deckId: number }) => {
         <label htmlFor="image" className="startup-form_label">
           Card Image
         </label>
-        <Input
+        {/* <Input
           id="image"
           name="image"
           className="startup-form_input"
           required
           placeholder="URL"
-        />
-
+        /> */}
+        <Dropzone {...dropzone}>
+          <div className="flex flex-row justify-between">
+            <DropzoneMessage />
+          </div>
+          <DropZoneArea className="flex w-full border-[3px] border-black rounded-full">
+            <DropzoneTrigger className="flex w-full gap-8 bg-transparent text-sm justify-center items-center hover:bg-gray-200">
+              <Avatar className={cn(isPending2 && "animate-pulse")}>
+                <AvatarImage
+                  className="object-cover max-w-[100px] max-h-[100px]"
+                  src={avatarSrc}
+                />
+                <AvatarFallback>IMG</AvatarFallback>
+              </Avatar>
+              <div className="flex flex-col gap-1 font-semibold">
+                <p>Upload a new image</p>
+                <p className="text-xs text-muted-foreground">
+                  Please select an image smaller than 10MB
+                </p>
+              </div>
+            </DropzoneTrigger>
+          </DropZoneArea>
+        </Dropzone>
         {errors.title && <p className="startup-form_error">{errors.title}</p>}
       </div>
       <div>

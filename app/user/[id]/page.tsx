@@ -11,12 +11,14 @@ import UserDecks from "@/components/UserDecks"
 export const experimental_ppr = true
 
 const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
-  const id = (await params).id
+  const theparams = await params
+  const id = theparams.id
   const session = await auth()
-
+  if (!id) {
+    return notFound()
+  }
   const user = await getAuthorById(Number(id))
   if (!user) return notFound()
-
   return (
     <>
       <section className="profile_container">

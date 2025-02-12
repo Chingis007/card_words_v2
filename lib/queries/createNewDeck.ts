@@ -2,6 +2,7 @@
 import { eq, asc } from "drizzle-orm"
 import { db } from "@/db"
 import { decks } from "@/db/schema"
+import { uploadImageAndReturnUrl } from "../utils"
 
 export async function createNewDeck(
   state: any,
@@ -14,8 +15,19 @@ export async function createNewDeck(
   //   translate: string
   //   image?: string | undefined
   // },
-  ownerId: number
+  ownerId: number,
+  theFile: File
 ) {
+  let imageUrl = undefined
+  if (theFile) {
+    if (
+      theFile.type !== "image/png" &&
+      theFile.type !== "image/jpeg" &&
+      theFile.type !== "image/svg"
+    )
+      return
+    imageUrl = await uploadImageAndReturnUrl(theFile)
+  }
   // image: string | undefined,
   // username: string | undefined,
   // description: string | undefined,
@@ -25,14 +37,17 @@ export async function createNewDeck(
 
   // const { image, title, primelanguage, translate, ownerId, description } = data
   // Object.fromEntries(Array.from(form))
-  const { title, image, description, primelanguage, translate } =
-    Object.fromEntries(Array.from(formData)) as {
-      title: string
-      image: string
-      description: string
-      primelanguage: string
-      translate: string
-    }
+
+  const { title, description, primelanguage, translate } = Object.fromEntries(
+    Array.from(formData)
+  ) as {
+    title: string
+    image: string
+    description: string
+    primelanguage: string
+    translate: string
+  }
+
   // console.log(title, image, description, primelanguage, translate)
   try {
     let response: {
@@ -42,7 +57,7 @@ export async function createNewDeck(
       (response = await db
         .insert(decks)
         .values({
-          image: image ? image : "undefined",
+          image: imageUrl ? imageUrl : "undefined",
           name: title ? title : "undefined",
           description: description ? description : "undefined",
           primeLanguage: primelanguage ? primelanguage : "undefined",

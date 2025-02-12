@@ -2,42 +2,52 @@ import React from "react"
 import { decksByAuthorId } from "@/lib/queries/decksByAuthorId"
 import DeckCover from "./DeckCover"
 import Link from "next/link"
-export type DeckType = {
+import PlayCard from "./PlayCard"
+import CardCover from "./CardCover"
+export type CardType = {
   id: number
+  originalWord: string
+  originalWordDescription: string
+  translation: string
+  translationDescription: string
   image: string
-  name: string
-  description: string
-  primeLanguage: string
-  secondaryLanguge: string
-  saved: string
-  ownerId: number
+  deckId: number
   createdAt: string
   updatedAt: string
 }
-const UserDecks = async ({
-  id,
-  myid,
+const DeckCards = async ({
+  cards,
+  deckId,
+  userId,
+  ownerId,
 }: {
-  id: string
-  myid: string | undefined
+  cards: CardType[]
+  deckId: number
+  userId: number
+  ownerId: number
 }) => {
-  const decks = await decksByAuthorId(Number(id))
   return (
     <>
-      <Link href={`/deck/create`}>
-        <div className="startup-card group flex justify-center items-center  min-w-[250px] h-full min-h-[250px]">
+      <Link href={`/deck/${deckId}/card/create`}>
+        <div className="startup-card group flex justify-center items-center min-h-[331px]">
           <div className="w-[100px] h-[100px] bg-white border-[10px] border-black rounded-full group-hover:border-primary transition-all duration-500 hover:shadow relative">
             <div className="absolute top-[45%] w-[80%] h-0 border-[5px] border-black rounded-full left-[10%] group-hover:border-primary transition-all duration-500 hover:shadow "></div>
             <div className="absolute top-[10%] w-0 h-[80%] border-[5px] border-black rounded-full left-[45%] group-hover:border-primary transition-all duration-500 hover:shadow "></div>
           </div>
         </div>
       </Link>
-      {decks.length > 0
-        ? decks
-            .reverse()
-            .map((deck: DeckType) => <DeckCover key={deck.id} deck={deck} />)
+      {cards.length > 0
+        ? cards.map((card: CardType) => (
+            <CardCover
+              key={card.id}
+              card={card}
+              deckId={deckId}
+              userId={userId}
+              ownerId={ownerId}
+            />
+          ))
         : undefined}
     </>
   )
 }
-export default UserDecks
+export default DeckCards

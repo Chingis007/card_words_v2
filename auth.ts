@@ -24,8 +24,22 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   debug: !!process.env.AUTH_DEBUG,
   theme: { logo: "https://authjs.dev/img/logo-sm.png" },
   adapter: UnstorageAdapter(storage),
-  providers: [GitHub, Google],
-  basePath: "/auth",
+  providers: [
+    // GitHub,
+    Google({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      authorization: {
+        params: {
+          prompt: "consent",
+          access_type: "offline",
+          response_type: "code",
+        },
+      },
+    }),
+  ],
+  // basePath: "/auth",
+  // basePath: "/auth",
   session: { strategy: "jwt" },
   callbacks: {
     authorized({ request, auth }) {

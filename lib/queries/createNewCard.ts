@@ -2,6 +2,7 @@
 import { eq, asc } from "drizzle-orm"
 import { db } from "@/db"
 import { cards } from "@/db/schema"
+import { uploadImageAndReturnUrl } from "../utils"
 
 export async function createNewCard(
   state: any,
@@ -14,8 +15,19 @@ export async function createNewCard(
   //   translate: string
   //   image?: string | undefined
   // },
-  deckId: number
+  deckId: number,
+  theFile: File
 ) {
+  let imageUrl = undefined
+  if (theFile) {
+    if (
+      theFile.type !== "image/png" &&
+      theFile.type !== "image/jpeg" &&
+      theFile.type !== "image/svg"
+    )
+      return
+    imageUrl = await uploadImageAndReturnUrl(theFile)
+  }
   // image: string | undefined,
   // username: string | undefined,
   // description: string | undefined,
@@ -46,7 +58,7 @@ export async function createNewCard(
       (response = await db
         .insert(cards)
         .values({
-          image: image ? image : "undefined",
+          image: imageUrl ? imageUrl : "undefined",
           originalWord: originalword ? originalword : "undefined",
           originalWordDescription: originalworddescription
             ? originalworddescription

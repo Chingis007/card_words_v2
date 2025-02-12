@@ -135,7 +135,7 @@
 }
 
 .pink_container {
-  @apply w-full bg-primary min-h-[530px] flex justify-center items-center flex-col py-10 px-6 h-[100vh];
+  @apply w-full bg-primary min-h-[530px] flex justify-center items-center flex-col py-10 px-6;
   background-image: linear-gradient(
     to right,
     transparent 49.5%,
@@ -240,7 +240,7 @@
 }
 
 .startup-card_img {
-  @apply w-full h-[164px]
+  @apply max-w-full max-h-full
     rounded-[10px] object-cover;
 }
 
@@ -290,4 +290,13 @@
 
 .category-tag {
   @apply font-medium text-[16px] bg-primary px-4 py-2 rounded-full;
+}
+
+@layer base {
+  * {
+    /* @apply border-border; */
+  }
+  body {
+    /* @apply bg-background text-foreground; */
+  }
 }
