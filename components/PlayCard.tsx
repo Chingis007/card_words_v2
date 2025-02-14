@@ -7,6 +7,7 @@ import { EyeIcon } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "./ui/button"
+import { Checkbox } from "./ui/checkbox"
 // import { Author, Deck } from "@/sanity/types"
 // import { Skeleton } from "./ui/skeleton"
 
@@ -28,10 +29,20 @@ const PlayCard = ({
   card,
   flipped,
   setFlipped,
-}: {
+  checkedArray,
+  setCheckedArray,
+  index,
+  type,
+}: // inputRef,
+{
   card: PlayCardType
   flipped: boolean
   setFlipped: (value: React.SetStateAction<boolean>) => void
+  checkedArray: boolean[]
+  setCheckedArray: React.Dispatch<React.SetStateAction<boolean[]>>
+  index: number
+  type: "repetition" | "manual" | "writing" | "connect"
+  // inputRef: React.MutableRefObject<null>
 }) => {
   // const [flipped, setFlipped] = useState(false)
   const [imageShown, setImageShown] = useState(true)
@@ -70,9 +81,29 @@ const PlayCard = ({
           rounded-[10px] object-cover"
           ></div>
         )}
-        <h1 className="flex justify-center items-center w-[calc(100%-150px)] text-2xl">
+        <h1
+          className={`flex justify-center items-center w-[calc(100%-150px)] text-2xl`}
+        >
           {originalWord}
         </h1>
+        <div className="flex flex-1 justify-center items-center">
+          {type === "manual" && (
+            <Checkbox
+              onCheckedChange={(checkState) => {
+                let newarr = [...checkedArray]
+                if (typeof checkState === "boolean") {
+                  newarr[index] = checkState
+                  setCheckedArray(newarr)
+                }
+              }}
+              className='border-black w-[50px] h-[50px] rounded-full bg-gray-300 hover:bg-gray-200 bg-[url("http://www.w3.org/2000/svg")]}'
+              onClick={(e) => {
+                e.stopPropagation()
+              }}
+            />
+          )}
+        </div>
+        {/* data-[state=checked]:bg-green-800 */}
       </div>
 
       {/* <Button

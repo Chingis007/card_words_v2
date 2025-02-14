@@ -1,7 +1,7 @@
 "use server"
 import Link from "next/link"
 import Image from "next/image"
-import { BadgePlus, LogOut } from "lucide-react"
+import { FolderOpen, LogOut } from "lucide-react"
 import { auth, signIn, signOut } from "auth"
 import { signOutAction, signInGoogleAction } from "@/lib/authFunctions"
 import { checkUserExistAndReturn } from "@/lib/queries/checkUserExistAndReturn"
@@ -22,11 +22,11 @@ export default async function Navbar() {
             <>
               {/* <Link href="/deck/create">
                 <span className="max-sm:hidden">Create</span>
-                <BadgePlus className="size-6 sm:hidden" />
+                <FolderOpen  className="size-6 sm:hidden" />
               </Link> */}
               <Link href={`/user/${session.user.id}`}>
                 <span className="max-sm:hidden">My Decks</span>
-                <BadgePlus className="size-6 sm:hidden" />
+                <FolderOpen className="size-6 sm:hidden" />
               </Link>
 
               <form action={signOutAction}>

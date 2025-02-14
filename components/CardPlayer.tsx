@@ -10,11 +10,19 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { cards } from "@/db/schema"
 import { Label } from "@radix-ui/react-label"
 import { Checkbox } from "@radix-ui/react-checkbox"
 import CardCarousel from "./CardCarousel"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 const CardPlayer = (props: {
   cards: {
@@ -29,7 +37,12 @@ const CardPlayer = (props: {
     updatedAt: string
   }[]
 }) => {
-  const [started, setStarted] = useState({ arr: [...props.cards], bool: false })
+  const [started, setStarted] = useState<{
+    arr: CardType[]
+    bool: boolean
+    type: "repetition" | "manual" | "writing" | "connect"
+  }>({ arr: [...props.cards], bool: false, type: "repetition" })
+  const [allowFinish, setAllowFinish] = useState(false)
   const [shuffleState, setShuffleState] = useState(false)
   const [imageState, setImageState] = useState(false)
   const [cardsArrayState, setCardsArrayState] = useState(props.cards)
@@ -41,6 +54,7 @@ const CardPlayer = (props: {
     return array
   }
   const [flipped, setFlipped] = useState(false)
+  const [attempts, setAttempts] = useState(1)
   // useEffect(() => {
   //   if(cardsArrayState)
   //   setStarted(true)
@@ -62,49 +76,375 @@ const CardPlayer = (props: {
             <Button
               className=""
               onClick={() => {
-                setStarted({ arr: [...props.cards], bool: false })
+                setStarted({
+                  arr: [...props.cards],
+                  bool: false,
+                  type: started.type,
+                })
               }}
             >
               Stop
             </Button>
-            <CardCarousel
-              imageState={imageState}
-              shuffleState={shuffleState}
-              cards={started.arr}
-              flipped={flipped}
-              setFlipped={setFlipped}
-            />
+            {started.type === "repetition" ? (
+              <CardCarousel
+                imageState={imageState}
+                shuffleState={shuffleState}
+                cards={started.arr}
+                flipped={flipped}
+                setFlipped={setFlipped}
+                type={started.type}
+                setAllowFinish={setAllowFinish}
+                attempts={attempts}
+              />
+            ) : started.type === "manual" ? (
+              <CardCarousel
+                imageState={imageState}
+                shuffleState={shuffleState}
+                cards={started.arr}
+                flipped={flipped}
+                setFlipped={setFlipped}
+                type={started.type}
+                setAllowFinish={setAllowFinish}
+                attempts={attempts}
+              />
+            ) : started.type === "writing" ? (
+              <CardCarousel
+                imageState={imageState}
+                shuffleState={shuffleState}
+                cards={started.arr}
+                flipped={flipped}
+                setFlipped={setFlipped}
+                type={started.type}
+                setAllowFinish={setAllowFinish}
+                attempts={attempts}
+              />
+            ) : started.type === "connect" ? (
+              <div></div>
+            ) : undefined}
+
+            {allowFinish ? (
+              <Button
+                className="w-full"
+                onClick={() => {
+                  setStarted({
+                    arr: [...props.cards],
+                    bool: false,
+                    type: started.type,
+                  })
+                }}
+              >
+                Finish
+              </Button>
+            ) : undefined}
           </div>
         ) : (
-          <div className="flex flex-row justify-center items-center border-black border-1 p-5 bg-secondary gap-10">
+          <div className="flex flex-row justify-center items-center border-black border-1 p-5 bg-white gap-10 rounded-md">
             <div className="flex flex-col justify-start items-start">
-              <div className="flex flex-row justify-start items-center">
-                <img src="/shuffle.png" alt="" className="w-[30px] h-[30px]" />
-                <input
-                  type="checkbox"
-                  id="shuffle"
-                  onChange={() => {
-                    setShuffleState(!shuffleState)
-                  }}
-                />
-                {/* <Checkbox
+              <Tabs
+                defaultValue="repetition"
+                className="flex flex-col justify-center items-center gap-4"
+              >
+                <TabsList className="bg-gray-400 gap-5">
+                  <TabsTrigger
+                    value="repetition"
+                    className="hover:bg-gray-200 data-[state=active]:bg-gray-300"
+                  >
+                    Repetition
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="manual"
+                    className="hover:bg-gray-200 data-[state=active]:bg-gray-300"
+                  >
+                    Manual Test
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="writing"
+                    className="hover:bg-gray-200 data-[state=active]:bg-gray-300"
+                  >
+                    Writing Test
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="connect"
+                    className="hover:bg-gray-200 data-[state=active]:bg-gray-300"
+                  >
+                    Connect Test
+                  </TabsTrigger>
+                </TabsList>
+                <TabsContent value="repetition" className="w-full">
+                  <div className="flex flex-col gap-5 w-full">
+                    <div className="flex flex-row justify-start items-center gap-1">
+                      <Label htmlFor="shuffle">
+                        <img
+                          src="/shuffle.png"
+                          alt=""
+                          className="w-[30px] h-[30px]"
+                        />
+                      </Label>
+                      <input
+                        type="checkbox"
+                        id="shuffle"
+                        onChange={() => {
+                          setShuffleState(!shuffleState)
+                        }}
+                      />
+                      {/* <Checkbox
                 className="w-[40px] h-[40px] data-[state=checked]:bg-primary data-[state=unchecked]:bg-black"
                 onCheckedChange={(checked: boolean | "indeterminate") => {
                   if (checked === true) setShuffleState(true)
                   if (checked === false) setShuffleState(false)
-                }}
-                id="shuffle"
+                  }}
+                  id="shuffle"
               /> */}
-                {/* <Switch
+                      {/* <Switch
                 className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-black"
                 onCheckedChange={(checked) => {
                   setShuffleState(checked)
-                }}
-                id="shuffle"
-              /> */}
-                <Label htmlFor="shuffle">Shuffle</Label>
-              </div>
-              <div className="flex flex-row justify-start items-center">
+                  }}
+                  id="shuffle"
+                  /> */}
+                      <Label htmlFor="shuffle">Shuffle</Label>
+                    </div>
+                    <div className="flex flex-col justify-center items-center">
+                      <Button
+                        className=""
+                        onClick={() => {
+                          if (shuffleState) {
+                            let newArrr = shuffle([...props.cards])
+                            setStarted({
+                              arr: [...newArrr],
+                              bool: true,
+                              type: "repetition",
+                            })
+                          } else {
+                            setStarted({
+                              arr: [...props.cards],
+                              bool: true,
+                              type: "repetition",
+                            })
+                          }
+                        }}
+                      >
+                        Start Repetition
+                      </Button>
+                    </div>
+                  </div>
+                </TabsContent>
+                <TabsContent value="manual" className="w-full">
+                  <div className="flex flex-col gap-5 w-full">
+                    <div className="flex flex-row justify-start items-center gap-1">
+                      <Label htmlFor="shuffle">
+                        <img
+                          src="/shuffle.png"
+                          alt=""
+                          className="w-[30px] h-[30px]"
+                        />
+                      </Label>
+                      <input
+                        type="checkbox"
+                        id="shuffle"
+                        onChange={() => {
+                          setShuffleState(!shuffleState)
+                        }}
+                      />
+                      {/* <Checkbox
+                className="w-[40px] h-[40px] data-[state=checked]:bg-primary data-[state=unchecked]:bg-black"
+                onCheckedChange={(checked: boolean | "indeterminate") => {
+                  if (checked === true) setShuffleState(true)
+                  if (checked === false) setShuffleState(false)
+                  }}
+                  id="shuffle"
+                  /> */}
+                      {/* <Switch
+                className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-black"
+                onCheckedChange={(checked) => {
+                  setShuffleState(checked)
+                  }}
+                  id="shuffle"
+                  /> */}
+                      <Label htmlFor="shuffle">Shuffle</Label>
+                    </div>
+                    <div className="flex flex-col justify-center items-center">
+                      <Button
+                        className=""
+                        onClick={() => {
+                          if (shuffleState) {
+                            let newArrr = shuffle([...props.cards])
+                            setStarted({
+                              arr: [...newArrr],
+                              bool: true,
+                              type: "manual",
+                            })
+                          } else {
+                            setStarted({
+                              arr: [...props.cards],
+                              bool: true,
+                              type: "manual",
+                            })
+                          }
+                        }}
+                      >
+                        Start Manual Test
+                      </Button>
+                    </div>
+                  </div>
+                </TabsContent>
+                <TabsContent value="writing" className="w-full">
+                  <div className="flex flex-col gap-5 w-full">
+                    <div className="flex flex-row justify-start items-center gap-1">
+                      <Label htmlFor="shuffle">
+                        <img
+                          src="/shuffle.png"
+                          alt=""
+                          className="w-[30px] h-[30px]"
+                        />
+                      </Label>
+                      <input
+                        type="checkbox"
+                        id="shuffle"
+                        onChange={() => {
+                          setShuffleState(!shuffleState)
+                        }}
+                      />
+                      {/* <Checkbox
+                className="w-[40px] h-[40px] data-[state=checked]:bg-primary data-[state=unchecked]:bg-black"
+                onCheckedChange={(checked: boolean | "indeterminate") => {
+                  if (checked === true) setShuffleState(true)
+                  if (checked === false) setShuffleState(false)
+                  }}
+                  id="shuffle"
+                  /> */}
+                      {/* <Switch
+                className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-black"
+                onCheckedChange={(checked) => {
+                  setShuffleState(checked)
+                  }}
+                  id="shuffle"
+                  /> */}
+                      <Label htmlFor="shuffle">Shuffle</Label>
+                    </div>
+                    <div className="flex flex-row justify-start items-center gap-1">
+                      <img
+                        src="/retry.png"
+                        alt=""
+                        className="w-[30px] h-[30px]"
+                      />
+                      <Select
+                        name="attempts"
+                        value={String(attempts)}
+                        onValueChange={(values) => setAttempts(Number(values))}
+                      >
+                        <SelectTrigger className="w-[70px]" id="attempts">
+                          <SelectValue placeholder="Choose number of attempts" />
+                        </SelectTrigger>
+                        <SelectContent className="z-10 bg-white">
+                          <SelectItem value="1">1</SelectItem>
+                          <SelectItem value="2">2</SelectItem>
+                          <SelectItem value="3">3</SelectItem>
+                          <SelectItem value="4">4</SelectItem>
+                          <SelectItem value="5">5</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      {/* <input
+                        type="number"
+                        id="attempts"
+                        className="w-[50px] select-none"
+                        max={10}
+                        value={attemptsState}
+                        onChange={(e) => {
+                          if (e.target.value) {
+                            setAttemptsState(Number(e.target.value))
+                          }
+                        }}
+                      /> */}
+                      {/* <Checkbox
+                className="w-[40px] h-[40px] data-[state=checked]:bg-primary data-[state=unchecked]:bg-black"
+                onCheckedChange={(checked: boolean | "indeterminate") => {
+                  if (checked === true) setShuffleState(true)
+                  if (checked === false) setShuffleState(false)
+                  }}
+                  id="shuffle"
+                  /> */}
+                      {/* <Switch
+                className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-black"
+                onCheckedChange={(checked) => {
+                  setShuffleState(checked)
+                  }}
+                  id="shuffle"
+                  /> */}
+                      Number of attempts
+                    </div>
+                    <div className="flex flex-col justify-center items-center">
+                      <Button
+                        className=""
+                        onClick={() => {
+                          if (shuffleState) {
+                            let newArrr = shuffle([...props.cards])
+                            setStarted({
+                              arr: [...newArrr],
+                              bool: true,
+                              type: "writing",
+                            })
+                          } else {
+                            setStarted({
+                              arr: [...props.cards],
+                              bool: true,
+                              type: "writing",
+                            })
+                          }
+                        }}
+                      >
+                        Start Writing Test
+                      </Button>
+                    </div>
+                  </div>
+                </TabsContent>
+                <TabsContent value="connect" className="w-full">
+                  <div className="flex flex-col gap-5 w-full">
+                    {/* <div className="flex flex-row justify-start items-center gap-1">
+                      <Label htmlFor="shuffle">
+                        <img
+                          src="/shuffle.png"
+                          alt=""
+                          className="w-[30px] h-[30px]"
+                        />
+                      </Label>
+                      <input
+                        type="checkbox"
+                        id="shuffle"
+                        onChange={() => {
+                          setShuffleState(!shuffleState)
+                        }}
+                      />
+                      <Label htmlFor="shuffle">Shuffle</Label>
+                    </div> */}
+                    <div className="flex flex-col justify-center items-center">
+                      <Button
+                        className=""
+                        onClick={() => {
+                          if (shuffleState) {
+                            let newArrr = shuffle([...props.cards])
+                            setStarted({
+                              arr: [...newArrr],
+                              bool: true,
+                              type: "connect",
+                            })
+                          } else {
+                            setStarted({
+                              arr: [...props.cards],
+                              bool: true,
+                              type: "connect",
+                            })
+                          }
+                        }}
+                      >
+                        Start Connect Test
+                      </Button>
+                    </div>
+                  </div>
+                </TabsContent>
+              </Tabs>
+
+              {/* <div className="flex flex-row justify-start items-center">
                 <img src="/shuffle.png" alt="" className="w-[30px] h-[30px]" />
                 <input
                   type="checkbox"
@@ -114,36 +454,7 @@ const CardPlayer = (props: {
                   }}
                 />
                 <Label htmlFor="images">Show all images</Label>
-              </div>
-              {/* <div
-              className=" w-[30px] h-[30px] flex bg-primary rounded-full p-1 cursor-pointer"
-              onClick={() => {
-                setCardsArrayState(shuffle([...cardsArrayState]))
-              }}
-            >
-            </div> */}
-              {/* <Button
-              onClick={() => {
-                setCardsArrayState(props.cards)
-              }}
-            >
-              Default
-            </Button> */}
-            </div>
-            <div className="flex flex-col justify-end items-end">
-              <Button
-                className=""
-                onClick={() => {
-                  if (shuffleState) {
-                    let newArrr = shuffle([...props.cards])
-                    setStarted({ arr: [...newArrr], bool: true })
-                  } else {
-                    setStarted({ arr: [...props.cards], bool: true })
-                  }
-                }}
-              >
-                Start
-              </Button>
+              </div> */}
             </div>
           </div>
         )}

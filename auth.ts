@@ -9,6 +9,7 @@ import memoryDriver from "unstorage/drivers/memory"
 import vercelKVDriver from "unstorage/drivers/vercel-kv"
 import { UnstorageAdapter } from "@auth/unstorage-adapter"
 import { getAuthorByEmail } from "./lib/queries/getAuthorByEmail"
+import { createNewUser } from "./lib/queries/createNewUser"
 
 // const storage = createStorage({
 //   driver: process.env.VERCEL
@@ -56,8 +57,23 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
     async session({ session, token }) {
       if (token?.accessToken) session.accessToken = token.accessToken
-      const userId = (await getAuthorByEmail(session.user.email)).id
-      session.user.id = String(userId)
+      let author = await getAuthorByEmail(session.user.email)
+      if (!author) {
+        await createNewUser({
+          email: session.user.email,
+          username: session.user.name ? session.user.name : "New User",
+          image: session.user.image ? session.user.image : undefined,
+        }).then(async (result) => {
+          let userId = (await getAuthorByEmail(session.user.email)).id
+          if (!userId) throw new Error("Cant register user")
+          session.user.id = String(userId)
+          return session
+        })
+      } else {
+        let userId = author.id
+        session.user.id = String(userId)
+        return session
+      }
       return session
     },
   },
