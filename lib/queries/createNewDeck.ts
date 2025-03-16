@@ -3,6 +3,7 @@ import { eq, asc } from "drizzle-orm"
 import { db } from "@/db"
 import { decks } from "@/db/schema"
 import { uploadImageAndReturnUrl } from "../utils"
+import { T } from "unstorage/dist/shared/unstorage.C1TxcX_u"
 
 export async function createNewDeck(
   state: any,
@@ -16,7 +17,7 @@ export async function createNewDeck(
   //   image?: string | undefined
   // },
   ownerId: number,
-  theFile: File
+  theFile: File | undefined
 ) {
   let imageUrl = undefined
   if (theFile) {
@@ -26,7 +27,8 @@ export async function createNewDeck(
       theFile.type !== "image/svg"
     )
       return
-    imageUrl = await uploadImageAndReturnUrl(theFile)
+    let resText = await uploadImageAndReturnUrl(theFile)
+    imageUrl = resText.secure_url
   }
   // image: string | undefined,
   // username: string | undefined,

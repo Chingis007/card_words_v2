@@ -98,7 +98,7 @@ const Page = async ({
                 Play
               </Link>
             </Button>
-            <AlertComponent id={Number(id)} deckId={Number(deck.id)} />
+            <AlertComponent id={Number(author.id)} deckId={Number(deck.id)} />
           </div>
           <DeckCover deck={deck} />
         </div>

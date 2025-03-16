@@ -17,7 +17,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-import React, { useState, useActionState } from "react"
+import React, { useState, useActionState, useRef } from "react"
 import { Input } from "./ui/input"
 import { Textarea } from "./ui/textarea"
 // import MDEditor from "@uiw/react-md-editor"
@@ -31,17 +31,17 @@ import { createNewDeck } from "@/lib/queries/createNewDeck"
 import { createNewCard } from "@/lib/queries/createNewCard"
 // import { unSaveDeck } from "@/lib/actions"
 // import { createPitch } from "@/lib/actions";
-import {
-  Dropzone,
-  DropZoneArea,
-  DropzoneDescription,
-  DropzoneFileList,
-  DropzoneFileListItem,
-  DropzoneMessage,
-  DropzoneRemoveFile,
-  DropzoneTrigger,
-  useDropzone,
-} from "@/components/ui/dropzone"
+// import {
+//   Dropzone,
+//   DropZoneArea,
+//   DropzoneDescription,
+//   DropzoneFileList,
+//   DropzoneFileListItem,
+//   DropzoneMessage,
+//   DropzoneRemoveFile,
+//   DropzoneTrigger,
+//   useDropzone,
+// } from "@/components/ui/dropzone"
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar"
 import { cn } from "@/lib/utils"
 const NewCardForm = (props: { deckId: number }) => {
@@ -51,28 +51,30 @@ const NewCardForm = (props: { deckId: number }) => {
   const [errors, setErrors] = useState<Record<string, string>>({})
   const { toast } = useToast()
   const router = useRouter()
-  const dropzone = useDropzone({
-    onDropFile: async (file: File) => {
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      return {
-        status: "success",
-        result: URL.createObjectURL(file),
-      }
-    },
-    validation: {
-      accept: {
-        "image/*": [".png", ".jpg", ".jpeg"],
-      },
-      maxSize: 10 * 1024 * 1024,
-      maxFiles: 1,
-    },
-    shiftOnMaxFiles: true,
-  })
-  const theFile = dropzone.fileStatuses[0]?.file
+  // const dropzone = useDropzone({
+  //   onDropFile: async (file: File) => {
+  //     await new Promise((resolve) => setTimeout(resolve, 1000))
+  //     return {
+  //       status: "success",
+  //       result: URL.createObjectURL(file),
+  //     }
+  //   },
+  //   validation: {
+  //     accept: {
+  //       "image/*": [".png", ".jpg", ".jpeg"],
+  //     },
+  //     maxSize: 10 * 1024 * 1024,
+  //     maxFiles: 1,
+  //   },
+  //   shiftOnMaxFiles: true,
+  // })
+  const inputRef = useRef(null)
+
+  // const theFile = dropzone.fileStatuses[0]?.file
   // console.log(theFile)
-  const avatarSrc = dropzone.fileStatuses[0]?.result
+  // const avatarSrc = dropzone.fileStatuses[0]?.result
   // console.log(avatarSrc)
-  const isPending2 = dropzone.fileStatuses[0]?.status === "pending"
+  // const isPending2 = dropzone.fileStatuses[0]?.status === "pending"
   // console.log(isPending2)
   const formSchema = z.object({
     title: z.string().min(2, {
@@ -89,7 +91,9 @@ const NewCardForm = (props: { deckId: number }) => {
       message: "Username must be at least 2 characters.",
     }),
   })
-
+  const [acceptedFiles, setAcceptedFiles] = useState<File | undefined>(
+    undefined
+  )
   const handleFormSubmit = async (prevState: any, formData: FormData) => {
     // const data: z.infer<typeof formSchema> ={}
     // const actualdata = {
@@ -114,7 +118,7 @@ const NewCardForm = (props: { deckId: number }) => {
         prevState,
         formData,
         props.deckId,
-        theFile
+        acceptedFiles
         // values.image,
         // values.title,
         // values.description,
@@ -203,7 +207,7 @@ const NewCardForm = (props: { deckId: number }) => {
           required
           placeholder="URL"
         /> */}
-        <Dropzone {...dropzone}>
+        {/* <Dropzone {...dropzone}>
           <div className="flex flex-row justify-between">
             <DropzoneMessage />
           </div>
@@ -224,7 +228,97 @@ const NewCardForm = (props: { deckId: number }) => {
               </div>
             </DropzoneTrigger>
           </DropZoneArea>
-        </Dropzone>
+        </Dropzone> */}
+        <div
+          id="drop_zone"
+          // className="border-black border-[5px] w-[200px] h-[100px]"
+          className="flex w-full border-[3px] border-black rounded-full justify-center items-center h-[120px]"
+          onClick={(e) => {
+            e.stopPropagation()
+            if (inputRef.current) {
+              let target = inputRef.current as HTMLInputElement
+              target.click()
+            }
+          }}
+          onDrop={(ev) => {
+            ev.preventDefault()
+            if (ev.dataTransfer.items) {
+              if (ev.dataTransfer.items[0].kind === "file") {
+                let data = ev.dataTransfer.items[0].getAsFile()
+                if (data instanceof File) {
+                  new Compressor(data, {
+                    quality: 0.6,
+                    success(result) {
+                      if (result instanceof File) {
+                        setAcceptedFiles(result)
+                      } else {
+                        let file = new File([result], `${data.name}`)
+                        setAcceptedFiles(file)
+                      }
+                    },
+                    error(err) {
+                      console.log(err.message)
+                    },
+                  })
+                }
+              }
+              //   ev.dataTransfer.items[0].kind
+              //   ;[...ev.dataTransfer.items].forEach((item, i) => {
+              //     if (item.kind === "file") {
+              //       const file = item.getAsFile()
+              //     }
+              //   })
+              // } else {
+              //   ;[...ev.dataTransfer.files].forEach((file, i) => {})
+            }
+          }}
+          onDragOver={(ev) => {
+            ev.preventDefault()
+          }}
+        >
+          <input
+            type="file"
+            id="dropzone_input"
+            hidden
+            ref={inputRef}
+            onChange={(ev) => {
+              ev.preventDefault()
+              let target = ev.target as HTMLInputElement
+              if (target.files) {
+                if (target.files[0]) {
+                  new Compressor(target.files[0], {
+                    quality: 0.6,
+                    success(result) {
+                      if (result instanceof File) {
+                        setAcceptedFiles(result)
+                      } else {
+                        let file = new File(
+                          [result],
+                          `${target.files![0].name}`
+                        )
+                        setAcceptedFiles(file)
+                      }
+                    },
+                    error(err) {
+                      console.log(err.message)
+                    },
+                  })
+                }
+              }
+            }}
+          />
+          {acceptedFiles ? (
+            <img
+              className="max-w-[114px] max-h-[114px]"
+              src={URL.createObjectURL(acceptedFiles)}
+              alt=""
+            />
+          ) : (
+            <p className="flex justify-center items-center h-[114px]">
+              SELECT OR DROP IMAGE HERE
+            </p>
+          )}
+        </div>
         {errors.title && <p className="startup-form_error">{errors.title}</p>}
       </div>
       <div>
@@ -249,7 +343,7 @@ const NewCardForm = (props: { deckId: number }) => {
           id="originalworddescription"
           name="originalworddescription"
           className="startup-form_textarea"
-          required
+          // required
           placeholder="Description"
         />
         {errors.title && <p className="startup-form_error">{errors.title}</p>}
@@ -275,7 +369,7 @@ const NewCardForm = (props: { deckId: number }) => {
           id="translationdescription"
           name="translationdescription"
           className="startup-form_textarea"
-          required
+          // required
           placeholder="Translation Description"
         />
         {errors.title && <p className="startup-form_error">{errors.title}</p>}

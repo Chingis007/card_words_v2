@@ -29,7 +29,7 @@ export async function uploadImageAndReturnUrl(oneFile: File) {
   })
     .then(async (response) => {
       const resText = await response.json()
-      return resText.secure_url
+      return resText
     })
     .catch((error) => {
       console.log(error)

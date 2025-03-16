@@ -16,7 +16,7 @@ export async function createNewCard(
   //   image?: string | undefined
   // },
   deckId: number,
-  theFile: File
+  theFile: File | undefined
 ) {
   let imageUrl = undefined
   if (theFile) {
@@ -26,7 +26,8 @@ export async function createNewCard(
       theFile.type !== "image/svg"
     )
       return
-    imageUrl = await uploadImageAndReturnUrl(theFile)
+    let resText = await uploadImageAndReturnUrl(theFile)
+    imageUrl = resText.secure_url
   }
   // image: string | undefined,
   // username: string | undefined,

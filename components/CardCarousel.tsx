@@ -66,6 +66,11 @@ const CardCarousel = (props: {
     setCurrent(api.selectedScrollSnap() + 1)
 
     api.on("select", () => {
+      setWritingTest("Waiting")
+      if (inputRef.current) {
+        let target = inputRef.current as HTMLInputElement
+        target.value = ""
+      }
       setCurrent(api.selectedScrollSnap() + 1)
     })
   }, [api])
@@ -90,7 +95,7 @@ const CardCarousel = (props: {
             className={`inline-block w-3 h-3 rounded-full bg-gray-400 mx-2 ${
               index + 1 === current ? "bg-primary" : ""
             }`}
-            onClick={() => api && api.scrollTo(index)}
+            // onClick={() => api && api.scrollTo(index)}
           />
         ))}
         <CarouselContent>
